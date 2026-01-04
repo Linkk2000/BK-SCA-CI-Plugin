@@ -1,0 +1,21 @@
+# Maven 编译输出
+target/
+
+# frontend-maven-plugin 自动下载的 Node.js
+node/
+node_modules/
+
+# IDE
+*.iml
+.idea/
+.vscode/
+
+# 编译文件
+*.class
+
+# 日志
+*.log
+
+# 操作系统
+.DS_Store
+Thumbs.db

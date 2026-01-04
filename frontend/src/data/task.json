@@ -1,0 +1,21 @@
+{
+  "atomCode": "SastTest",
+  "htmlTemplateVersion": "1.2",
+  "execution": {
+    "packagePath": "SastTest-jar-with-dependencies.jar",
+    "language": "java",
+    "minimumVersion": "1.8",
+    "demands": [],
+    "target": "java -jar SastTest-jar-with-dependencies.jar"
+  },
+  "input": {
+    "server": {
+      "label": "SAST服务器地址",
+      "type": "vuex-input"
+    },
+    "token": {
+      "label": "Token",
+      "type": "vuex-input"
+    }
+  }
+}

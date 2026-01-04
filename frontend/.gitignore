@@ -1,0 +1,29 @@
+# 依赖
+node_modules/
+
+# 编译输出
+dist/
+
+# 文档
+docs/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# 日志
+*.log
+npm-debug.log*
+
+# 缓存
+.cache/
+.sass-cache/
+
+# 操作系统
+.DS_Store
+Thumbs.db
+
+# 临时文件
+*.tmp
+.temp/

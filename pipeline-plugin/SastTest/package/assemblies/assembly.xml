@@ -1,0 +1,44 @@
+<assembly xmlns="http://maven.apache.org/ASSEMBLY/2.1.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.1.0 http://maven.apache.org/xsd/assembly-2.1.0.xsd">
+    <id>release</id>
+    <formats>
+        <format>zip</format>
+    </formats>
+    <includeBaseDirectory>true</includeBaseDirectory>
+    <baseDirectory>${project.artifactId}</baseDirectory>
+    
+    <fileSets>
+        <!-- 包含前端打包文件 -->
+        <fileSet>
+            <directory>${project.build.directory}/frontend</directory>
+            <outputDirectory>frontend</outputDirectory>
+            <includes>
+                <include>**/*.html</include>
+                <include>**/*.js</include>
+                <include>**/*.css</include>
+            </includes>
+            <excludes>
+                <exclude>**/*.map</exclude>
+            </excludes>
+        </fileSet>
+        
+        <!-- 包含 jar 包 -->
+        <fileSet>
+            <directory>${project.build.directory}</directory>
+            <outputDirectory>/</outputDirectory>
+            <includes>
+                <include>${project.artifactId}-jar-with-dependencies.jar</include>
+            </includes>
+        </fileSet>
+        
+        <!-- 包含 task.json -->
+        <fileSet>
+            <directory>${project.basedir}</directory>
+            <outputDirectory>/</outputDirectory>
+            <includes>
+                <include>task.json</include>
+            </includes>
+        </fileSet>
+    </fileSets>
+</assembly>

@@ -1,0 +1,29 @@
+# Maven 编译输出
+target/
+
+# frontend-maven-plugin 下载的 node
+node/
+node_modules/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+.project
+.classpath
+.settings/
+
+# 编译文件
+*.class
+
+# 日志
+*.log
+
+# 操作系统
+.DS_Store
+Thumbs.db
+
+# Maven Wrapper
+.mvn/wrapper/maven-wrapper.jar
