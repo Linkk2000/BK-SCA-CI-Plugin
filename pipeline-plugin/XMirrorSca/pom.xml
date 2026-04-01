@@ -10,8 +10,8 @@
         <version>1.0.0</version>
     </parent>
 
-    <artifactId>SastTest</artifactId>
-    <name>SastTest</name>
+    <artifactId>XMirrorSca</artifactId>
+    <name>XMirrorSca</name>
 
     <properties>
         <!-- 引用的sdk版本，当sdk版本有升级时再修改 -->

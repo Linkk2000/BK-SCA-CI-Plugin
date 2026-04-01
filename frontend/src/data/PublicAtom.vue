@@ -56,9 +56,9 @@
 
         // 脚手架在插件的created阶段订阅接收来自蓝盾上层的数据
         created () {
-            console.log('📡 Plugin created, waiting for parent message...')
+            console.log('Plugin created, waiting for parent message...')
             window.addEventListener('message', (e) => {
-                console.log('📬 Received message from parent:', {
+                console.log('Received message from parent:', {
                     origin: e.origin,
                     hasAtomPropsValue: !!(e.data && e.data.atomPropsValue),
                     hasAtomPropsModel: !!(e.data && e.data.atomPropsModel),
@@ -66,7 +66,7 @@
                 })
                 // 只处理来自父页面的数据消息，忽略其他消息
                 if (!e.data || typeof e.data !== 'object') {
-                    console.log('⏭️ Skipping non-object message')
+                    console.log('Skipping non-object message')
                     return
                 }
                 // atomPropsValue 可以是空对象 {}，atomPropsModel 必须存在
@@ -84,11 +84,11 @@
                     // 当前插件在研发商店设置的环境变量
                     this.envConf = e.data.envConf || {}
                     this.hasInitData = true
-                    console.log('✅ Plugin initialized successfully! hasInitData:', this.hasInitData)
-                    console.log('📊 atomPropsValue:', this.atomPropsValue)
-                    console.log('📋 atomPropsModel:', this.atomPropsModel)
+                    console.log('Plugin initialized successfully! hasInitData:', this.hasInitData)
+                    console.log('atomPropsValue:', this.atomPropsValue)
+                    console.log('atomPropsModel:', this.atomPropsModel)
                 } else {
-                    console.warn('⚠️ Received message but missing required data:', {
+                    console.warn('Received message but missing required data:', {
                         hasAtomPropsValue: !!(e.data && e.data.atomPropsValue),
                         hasAtomPropsModel: !!(e.data && e.data.atomPropsModel)
                     })
