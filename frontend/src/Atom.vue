@@ -2,7 +2,16 @@
     <section class="bk-form bk-form-vertical atom-form">
         <!-- 第一部分：服务器信息 -->
         <div class="form-section">
-            <h3 class="section-title">服务器信息</h3>
+            <div class="section-header">
+                <h3 class="section-title">服务器信息</h3>
+                <a
+                    class="wiki-link"
+                    :href="wikiUrl"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title="在新窗口打开插件使用文档"
+                >使用文档 ↗</a>
+            </div>
             
             <!-- SCA服务器地址 -->
             <div class="form-group" :class="{ 'has-error': fieldErrors.server.show }">
@@ -150,6 +159,9 @@
     import { atomMixin } from 'bkci-atom-components'
     import { mockAjax } from '@/utils/mock'
 
+    // 插件使用文档（内部 xwiki）。TODO(YeYe): 替换为真实地址
+    const WIKI_URL = 'https://xwiki.example.com/bin/view/SCA/'
+
     export default {
         name: 'atom',
         mixins: [atomMixin],    // 需引用atomMixin
@@ -173,6 +185,7 @@
         },
         data() {
             return {
+                wikiUrl: WIKI_URL,
                 // 核心：本地数据副本，所有 UI 绑定均基于此
                 scaTask: {
                     server: '',
@@ -709,6 +722,32 @@
                 font-size: 16px;
                 color: #313238;
                 font-weight: bold;
+            }
+
+            .section-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin: 0 0 20px 0;
+                padding-bottom: 10px;
+                border-bottom: 1px solid #f0f1f5;
+
+                .section-title {
+                    margin: 0;
+                    padding: 0;
+                    border: none;
+                }
+
+                .wiki-link {
+                    font-size: 14px;
+                    color: #3a84ff;
+                    text-decoration: none;
+
+                    &:hover {
+                        color: #4e94ff;
+                        text-decoration: underline;
+                    }
+                }
             }
         }
         
