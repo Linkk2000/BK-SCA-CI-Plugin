@@ -38,6 +38,79 @@
       "label": "应用",
       "type": "vuex-input",
       "required": true
+    },
+    "qualityEnable": {
+      "label": "质量门禁",
+      "type": "enum-input",
+      "default": "off",
+      "desc": "开启后会等待本次扫描完成，并按 SCA 中「策略配置与管理」里绑定到该项目、场景为 CI/CD 流水线 的策略做判定，命中阻断则流水线失败。关闭时行为与旧版本一致：触发扫描即返回。",
+      "list": [
+        {
+          "label": "关闭",
+          "value": "off"
+        },
+        {
+          "label": "开启",
+          "value": "on"
+        }
+      ]
+    },
+    "engineToken": {
+      "label": "引擎令牌",
+      "type": "vuex-input",
+      "default": "",
+      "isSensitive": true,
+      "placeholder": "SCA 配置项 sca.engine_api_token_value 的值",
+      "desc": "门禁接口位于 /api-v1/engine/** 下，只认 engine-token 请求头。值在 SCA 部署目录 docker/gen.cfg 的 vars_must_xmsca_web_engine_token（或已渲染的 target/config/application-prod.properties）。建议使用凭据变量，不要明文。",
+      "rely": {
+        "operation": "AND",
+        "expression": [
+          {
+            "key": "qualityEnable",
+            "value": "on"
+          }
+        ]
+      }
+    },
+    "timeoutMinutes": {
+      "label": "等待扫描完成上限(分钟)",
+      "type": "vuex-input",
+      "default": "30",
+      "desc": "代码仓库扫描需要 SCA 拉取代码，耗时不可控。超过上限按「门禁故障」处理，是否放行由下面的开关决定。",
+      "rely": {
+        "operation": "AND",
+        "expression": [
+          {
+            "key": "qualityEnable",
+            "value": "on"
+          }
+        ]
+      }
+    },
+    "failOpen": {
+      "label": "门禁故障时",
+      "type": "enum-input",
+      "default": "on",
+      "desc": "仅针对门禁自身故障（SCA 不可达、等待超时、接口异常）。策略判定为阻断时永远失败，不受此项影响。灰度期建议放行，稳定后改为阻断。",
+      "list": [
+        {
+          "label": "放行",
+          "value": "on"
+        },
+        {
+          "label": "阻断",
+          "value": "off"
+        }
+      ],
+      "rely": {
+        "operation": "AND",
+        "expression": [
+          {
+            "key": "qualityEnable",
+            "value": "on"
+          }
+        ]
+      }
     }
   }
 }

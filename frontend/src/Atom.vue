@@ -114,7 +114,7 @@
                         v-for="app in appList" 
                         :key="app.id" 
                         :id="app.id" 
-                        :name="app.name"
+                        :name="app.label || app.name"
                     >
                     </bk-option>
                 </bk-select>
@@ -565,9 +565,14 @@
                     })
                     
                     if (response && response.code === 0 && response.data && response.data.records) {
+                        // git/list 的记录自带 version（分支）。同名应用只有分支不同，
+                        // 下拉里必须把分支显示出来；name 保持纯应用名，回填给隐藏字段时不带分支
                         this.appList = response.data.records.map(item => ({
                             id: item.applicationId,
-                            name: item.applicationName
+                            name: item.applicationName,
+                            label: item.version
+                                ? `${item.applicationName}  [${item.version}]`
+                                : item.applicationName
                         }))
                         console.log('[获取应用] 成功获取应用列表，数量:', this.appList.length)
                         console.log('[获取应用] 完成后 scaTask.applicationId=', this.scaTask.applicationId)
