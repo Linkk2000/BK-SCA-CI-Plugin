@@ -66,7 +66,9 @@ module.exports = (env, argv) => {
             new webpack.DefinePlugin({
                 // IMPORTANT: keep this as a boolean literal (not a string),
                 // so code can safely do `ISLOCAL === true` checks.
-                ISLOCAL: !isProd
+                ISLOCAL: !isProd,
+                // 插件使用文档地址（内部 xwiki），编译时从环境变量注入，不进仓库；为空时前端不显示入口
+                WIKI_URL: JSON.stringify(process.env.WIKI_URL || '')
             }),
             new HtmlWebpackPlugin({
                 filename: 'index.html',

@@ -5,6 +5,7 @@
             <div class="section-header">
                 <h3 class="section-title">服务器信息</h3>
                 <a
+                    v-if="wikiUrl"
                     class="wiki-link"
                     :href="wikiUrl"
                     target="_blank"
@@ -159,8 +160,8 @@
     import { atomMixin } from 'bkci-atom-components'
     import { mockAjax } from '@/utils/mock'
 
-    // 插件使用文档（内部 xwiki）。TODO(YeYe): 替换为真实地址
-    const WIKI_URL = 'https://xwiki.example.com/bin/view/SCA/'
+    // 插件使用文档地址由 webpack DefinePlugin 在编译时注入（环境变量 WIKI_URL），未配置则为空
+    const wikiUrl = typeof WIKI_URL === 'string' ? WIKI_URL : ''
 
     export default {
         name: 'atom',
@@ -185,7 +186,7 @@
         },
         data() {
             return {
-                wikiUrl: WIKI_URL,
+                wikiUrl,
                 // 核心：本地数据副本，所有 UI 绑定均基于此
                 scaTask: {
                     server: '',
