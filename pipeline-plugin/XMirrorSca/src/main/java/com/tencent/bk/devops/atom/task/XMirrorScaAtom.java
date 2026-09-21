@@ -50,8 +50,14 @@ public class XMirrorScaAtom implements TaskAtom<XMirrorScaAtomParam> {
 
     @Override
     public void execute(AtomContext<XMirrorScaAtomParam> atomContext) {
-        XMirrorScaAtomParam param = atomContext.getParam();
-        AtomResult result = atomContext.getResult();
+        execute(atomContext.getParam(), atomContext.getResult());
+    }
+
+    /**
+     * 可测试的执行入口。生产环境仍通过 {@link AtomContext} 调用公开入口，单元测试可直接
+     * 传入参数和结果对象，避免依赖蓝盾 Agent 的文件环境。
+     */
+    void execute(XMirrorScaAtomParam param, AtomResult result) {
 
         String server = param.getServer();
         String token = param.getToken();
