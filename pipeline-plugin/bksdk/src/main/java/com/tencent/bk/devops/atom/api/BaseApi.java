@@ -10,6 +10,14 @@ import java.net.SocketTimeoutException;
 import java.net.URLEncoder;
 import java.net.UnknownHostException;
 import java.rmi.ConnectException;
+import java.security.SecureRandom;
+import java.security.cert.X509Certificate;
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -132,11 +140,47 @@ public class BaseApi {
         }
     }
 
+    // 创建信任所有证书的 TrustManager
+    private static final TrustManager[] trustAllCerts = new TrustManager[]{
+        new X509TrustManager() {
+            @Override
+            public void checkClientTrusted(X509Certificate[] chain, String authType) {
+            }
+
+            @Override
+            public void checkServerTrusted(X509Certificate[] chain, String authType) {
+            }
+
+            @Override
+            public X509Certificate[] getAcceptedIssuers() {
+                return new X509Certificate[0];
+            }
+        }
+    };
+
+    // 创建 SSLSocketFactory
+    private static SSLSocketFactory createSSLSocketFactory() {
+        try {
+            SSLContext sslContext = SSLContext.getInstance("TLS");
+            sslContext.init(null, trustAllCerts, new SecureRandom());
+            return sslContext.getSocketFactory();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to create SSLSocketFactory", e);
+        }
+    }
+
     protected OkHttpClient okHttpClient =
         new okhttp3.OkHttpClient.Builder()
             .connectTimeout(5L, TimeUnit.SECONDS)
             .readTimeout(300 * 5L, TimeUnit.SECONDS) // Set to 15 minutes
             .writeTimeout(60L, TimeUnit.SECONDS)
+            .sslSocketFactory(createSSLSocketFactory(), (X509TrustManager) trustAllCerts[0])
+            .hostnameVerifier(new HostnameVerifier() {
+                @Override
+                public boolean verify(String hostname, SSLSession session) {
+                    return true; // 信任所有主机名
+                }
+            })
             .build();
 
     public Request buildGet(String path, Map<String, String> headers) {

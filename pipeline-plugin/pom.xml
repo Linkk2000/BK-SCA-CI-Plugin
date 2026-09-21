@@ -10,7 +10,7 @@
     <packaging>pom</packaging>
     <modules>
         <module>bksdk</module>
-        <module>SastTest</module>
+        <module>XMirrorSca</module>
     </modules>
 
 

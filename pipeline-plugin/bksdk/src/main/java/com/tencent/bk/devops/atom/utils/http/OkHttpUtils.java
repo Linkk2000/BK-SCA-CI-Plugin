@@ -10,7 +10,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.X509TrustManager;
 import java.io.File;
@@ -68,6 +70,12 @@ public class OkHttpUtils {
         }
         OkHttpClient.Builder builder = new okhttp3.OkHttpClient.Builder();
         builder.sslSocketFactory(sslSocketFactory(), trustAllCerts[0]);
+        builder.hostnameVerifier(new HostnameVerifier() {
+            @Override
+            public boolean verify(String hostname, SSLSession session) {
+                return true; // 信任所有主机名
+            }
+        });
         builder.writeTimeout(finalConnectTimeout, TimeUnit.SECONDS);
         builder.writeTimeout(finalWriteTimeout, TimeUnit.SECONDS);
         builder.readTimeout(finalReadTimeout, TimeUnit.SECONDS);

@@ -16,7 +16,7 @@ module.exports = (env, argv) => {
             remoteAtom: './src/main.js'
         },
         output: {
-            publicPath: './',
+            publicPath: isProd ? './' : '/',
             filename: '[name].[contentHash].js',
             chunkFilename: 'js/[name].[chunkHash:8].js'
         },
@@ -64,7 +64,11 @@ module.exports = (env, argv) => {
         plugins: [
             new VueLoaderPlugin(),
             new webpack.DefinePlugin({
-                ISLOCAL: JSON.stringify(!isProd)
+                // IMPORTANT: keep this as a boolean literal (not a string),
+                // so code can safely do `ISLOCAL === true` checks.
+                ISLOCAL: !isProd,
+                // 插件使用文档地址（内部 xwiki），编译时从环境变量注入，不进仓库；为空时前端不显示入口
+                WIKI_URL: JSON.stringify(process.env.WIKI_URL || '')
             }),
             new HtmlWebpackPlugin({
                 filename: 'index.html',
@@ -74,8 +78,10 @@ module.exports = (env, argv) => {
         ],
         devServer: {
             port: 8001,
-            contentBase: path.join(__dirname, 'dist'),
-            historyApiFallback: true,
+            contentBase: path.join(__dirname, 'src'), // 开发时直接指向源码目录
+            historyApiFallback: {
+                index: '/index.html'
+            },
             noInfo: false,
             disableHostCheck: true
         }

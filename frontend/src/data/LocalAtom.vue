@@ -1,20 +1,25 @@
 <template>
     <div id="local-atom" class="remote-atom" :class="{ 'atom-disabled': atomDisabled }">
         <Atom
-            :atom-props-value="getAtomDefaultValue(taskJson && taskJson.input)"
-            :atom-props-model="taskJson && taskJson.input"
+            v-if="taskJson && taskJson.input"
+            :atom-props-value="getAtomDefaultValue(taskJson.input)"
+            :atom-props-model="taskJson.input"
             :atom-props-container-info="containerInfo"
             :atom-props-disabled="atomDisabled"
             :current-user-info="currentUserInfo"
             :env-conf="envConf"
         >
         </Atom>
+        <div v-else style="padding: 20px; color: red;">
+            错误：无法加载 task.json 数据，请检查 frontend/src/data/task.json 是否存在且格式正确。
+        </div>
     </div>
 </template>
 
 <script>
-    import initTaskJson from './task.json'  // 该文件为调试专用，请注意task.json格式，若无内容，则task.json为{}
+    import initTaskJson from './task.json'
     import Atom from '../Atom'
+
     export default {
         name: 'local-atom',
         components: {
@@ -25,9 +30,11 @@
                 return initTaskJson
             }
         },
+        created() {
+            console.warn('[LocalAtom] Component initialized')
+        },
         data () {
             return {
-                // 插件所在的job的相关信息，如编译环境类型等
                 containerInfo: {
                     baseOS: 'LINUX',
                     dispatchType: {
@@ -39,12 +46,10 @@
                         value: "tlinux2_2"
                     }
                 },
-                // 当前访问用户的姓名、头像信息等
                 currentUserInfo: {
                     userName: 'zhangsan',
                     chineseName: '张三'
                 },
-                // 当前插件是否可编辑，当在构建详情、预览、模板示例化出的流水线点开该插件时，不可编辑
                 atomDisabled: false,
                 envConf: {}
             }
@@ -52,7 +57,7 @@
         methods: {
             getAtomDefaultValue (atomProps = {}) {
                 return Object.keys(atomProps).reduce((formProps, key) => {
-                    formProps[key] = atomProps[key].default
+                    formProps[key] = atomProps[key].default || ''
                     return formProps
                 }, {})
             }
@@ -66,6 +71,7 @@
         margin: 30px auto;
         border: solid 1px #c4c6cc;
         padding: 32px;
+        background: #fff;
     }
     .atom-disabled {
         pointer-events: none;

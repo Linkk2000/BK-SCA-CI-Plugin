@@ -10,8 +10,8 @@
         <version>1.0.0</version>
     </parent>
 
-    <artifactId>SastTest</artifactId>
-    <name>SastTest</name>
+    <artifactId>XMirrorSca</artifactId>
+    <name>XMirrorSca</name>
 
     <properties>
         <!-- 引用的sdk版本，当sdk版本有升级时再修改 -->
@@ -34,6 +34,12 @@
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>4.13.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>mockwebserver</artifactId>
+            <version>4.9.1</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
