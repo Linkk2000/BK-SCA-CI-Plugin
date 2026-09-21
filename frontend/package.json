@@ -4,6 +4,7 @@
   "description": "working at pipeline of bkci",
   "author": "bkci",
   "scripts": {
+    "test:configuration": "node tests/configuration-sync.test.js",
     "dev": "webpack-dev-server --mode development --progress --env.name=dev",
     "public": "webpack --mode production"
   },

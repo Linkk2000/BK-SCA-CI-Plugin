@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<title>插件保存与初始校验回归</title>
+<h1>生产构建 iframe 回归（模拟宿主，非生产平台）</h1>
+<p>先运行 npm run public，再从 HTTP 服务器打开本页。使用 localhost.（带末尾点）避免插件进入本地 mock 模式。</p>
+<pre id="result">运行中…</pre>
+<iframe id="plugin" title="插件配置" style="width: 95%; height: 900px"></iframe>
+<script>
+(async function () {
+    var frame = document.getElementById('plugin')
+    var result = document.getElementById('result')
+    var messages = []
+    window.addEventListener('message', function (event) {
+        if (event.source === frame.contentWindow) messages.push(event.data)
+    })
+    function waitFor(check) {
+        return new Promise(function (resolve, reject) {
+            var started = Date.now()
+            var timer = setInterval(function () {
+                if (check()) { clearInterval(timer); resolve() }
+                else if (Date.now() - started > 10000) { clearInterval(timer); reject(new Error('等待条件超时')) }
+            }, 20)
+        })
+    }
+    function assert(value, text) {
+        if (!value) throw new Error(text)
+    }
+    try {
+        var task = await (await fetch('../src/data/task.json')).json()
+        frame.src = '../dist/index.html'
+        await new Promise(function (resolve) { frame.onload = resolve })
+        frame.contentWindow.postMessage({
+            atomPropsValue: {}, atomPropsModel: task.input, atomDisabled: false,
+            containerInfo: {}, currentUserInfo: {}, envConf: {}
+        }, '*')
+        await waitFor(function () { return messages.some(function (m) { return m.isError === true }) })
+        var doc = frame.contentDocument
+        await waitFor(function () { return doc.querySelector('[role="alert"]') })
+        assert(doc.querySelector('[role="alert"]').textContent.indexOf('配置不完整') >= 0, '初始提示缺失')
+        var field = doc.querySelector('input:not([disabled]):not([readonly]):not([type="radio"]):not([type="checkbox"])')
+        assert(field, '没有可编辑字段')
+        field.value = 'regression-updated-value'
+        field.dispatchEvent(new frame.contentWindow.Event('input', { bubbles: true }))
+        // Save in the same JS turn as input: the watcher has not flushed yet.
+        var buttons = Array.prototype.slice.call(doc.querySelectorAll('button'))
+        var save = buttons.filter(function (button) { return button.textContent.indexOf('保存') >= 0 })[0]
+        assert(save, '没有保存按钮')
+        save.click()
+        await waitFor(function () {
+            return messages.some(function (m) {
+                return m.atomValue && Object.keys(m.atomValue).some(function (key) {
+                    return m.atomValue[key] === 'regression-updated-value'
+                })
+            })
+        })
+        result.textContent = 'PASS：空配置立即上报 isError；实际页面显示缺失提示；输入后同一轮立即点击保存，父页面收到最新 atomValue。'
+    } catch (error) {
+        result.textContent = 'FAIL：' + error.message
+        throw error
+    }
+})()
+</script>
+</html>
