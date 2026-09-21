@@ -54,7 +54,23 @@
                 })
             })
         })
-        result.textContent = 'PASS：空配置立即上报 isError；实际页面显示缺失提示；输入后同一轮立即点击保存，父页面收到最新 atomValue。'
+        var saved = messages.filter(function (m) { return m.atomValue }).slice(-1)[0].atomValue
+        await new Promise(function (resolve) {
+            frame.onload = resolve
+            frame.src = '../dist/index.html?reopen=1'
+        })
+        messages = []
+        frame.contentWindow.postMessage({
+            atomPropsValue: saved, atomPropsModel: task.input, atomDisabled: false,
+            containerInfo: {}, currentUserInfo: {}, envConf: {}
+        }, '*')
+        await waitFor(function () {
+            var fields = frame.contentDocument.querySelectorAll('input')
+            return Array.prototype.some.call(fields, function (input) {
+                return input.value === 'regression-updated-value'
+            })
+        })
+        result.textContent = 'PASS：初始缺失提示；立即保存收到最新值；使用父页面保存的配置重新打开 iframe，编辑值正确回显。'
     } catch (error) {
         result.textContent = 'FAIL：' + error.message
         throw error

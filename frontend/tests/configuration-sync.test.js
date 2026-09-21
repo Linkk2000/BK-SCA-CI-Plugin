@@ -84,6 +84,7 @@ async function run() {
     if (isScanner) instance.saveConfiguration()
     else instance.handleSaveConfig()
     assert.strictEqual(lastValue()[changedField], 'latest', 'explicit save immediately sends final field value')
+    const savedValues = JSON.parse(JSON.stringify(lastValue()))
     instance.$set(instance.atomValue, 'extra', { nested: 'one' })
     await tick()
     instance.atomValue.extra.nested = 'two'
@@ -127,6 +128,11 @@ async function run() {
     }
     instance.$destroy()
 
+    instance = await mount(savedValues)
+    assert.strictEqual(instance[taskKey][changedField], 'latest', 'reopening the saved payload restores the edited value')
+    assert.strictEqual(lastError(), false, 'saved complete configuration remains valid after reopening')
+    instance.$destroy()
+
     const readOnlyValues = {}
     instance = await mount(readOnlyValues, true)
     assert.deepStrictEqual(readOnlyValues, {}, 'read-only initialization does not change supplied values')
@@ -137,4 +143,3 @@ async function run() {
     console.log('PASS: real Vue initialization, deep watchers, immediate save, validation, defaults and read-only mode')
 }
 run().catch(error => { console.error(error); process.exitCode = 1 })
-
