@@ -12,8 +12,10 @@ out/
 **/build/
 
 # 文档目录
-docs/
+# 根目录 docs/ 用于 XFlow 能力契约，需要被跟踪；仅忽略子项目 docs/。
 **/docs/
+!docs/
+!docs/**
 
 # Maven 相关
 *.class
@@ -74,3 +76,9 @@ coverage/
 # 其他
 .sass-cache/
 
+# XFlow 本机工具、运行时与活动审批（不提交）
+.xflow/ops/devctl/
+.xflow/ops/workflow/
+.xflow/local/
+.xflow/runtime/
+.xflow/issues/**/approvals/local-review.md

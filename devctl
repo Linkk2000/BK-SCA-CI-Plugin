@@ -1,0 +1,13 @@
+#!/bin/sh
+set -eu
+
+REPO_ROOT=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+DEVCTL_BIN="$REPO_ROOT/.xflow/ops/devctl/devctl"
+
+if [ ! -f "$DEVCTL_BIN" ]; then
+  printf '%s\n' "[ERROR] project-local devctl not found: $DEVCTL_BIN" >&2
+  exit 1
+fi
+
+export DEVCTL_REPO_ROOT="$REPO_ROOT"
+exec "$DEVCTL_BIN" "$@"

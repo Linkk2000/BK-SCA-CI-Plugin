@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "issueWorkspace": {
+    "mode": "tracked"
+  },
+  "contracts": {
+    "root": "docs/requirements"
+  },
+  "skill": {
+    "source": "git@github.com:Linkk2000/xflow-skills.git",
+    "ref": "main",
+    "mode": "local-ignored-vendor",
+    "path": ".xflow/ops/workflow"
+  },
+  "devctl": {
+    "source": "git@github.com:Linkk2000/xflow-devctl.git",
+    "ref": "main",
+    "mode": "local-ignored-vendor",
+    "path": ".xflow/ops/devctl"
+  },
+  "humanGated": true
+}
