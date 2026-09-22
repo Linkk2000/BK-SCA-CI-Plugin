@@ -11,6 +11,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertEquals;
@@ -101,6 +102,50 @@ public class XMirrorScaAtomTest {
     @Test
     public void gateRequiresEngineTokenBeforeNetworkCall() throws Exception {
         AtomResult result = execute(param("on", "  ", "off"));
+
+        assertEquals(Status.failure, result.getStatus());
+        assertTrue(result.getMessage().contains("未配置引擎令牌"));
+        assertNull(server.takeRequest(100, TimeUnit.MILLISECONDS));
+    }
+
+    @Test
+    public void gateFallsBackToStoreSensitiveEngineToken() throws Exception {
+        enqueueJson(detectResponse(101, 202));
+        enqueueJson("{\"code\":0,\"data\":5}");
+        enqueueJson("{\"code\":0,\"data\":{\"block\":false}}");
+        XMirrorScaAtomParam param = param("on", null, "off");
+        param.setBkSensitiveConfInfo(Collections.singletonMap("engineToken", "store-token"));
+
+        AtomResult result = execute(param);
+
+        assertEquals(Status.success, result.getStatus());
+        takeRequest();
+        takeRequest();
+        assertEquals("store-token", takeRequest().getHeader("engine-token"));
+    }
+
+    @Test
+    public void pipelineEngineTokenTakesPrecedenceOverStoreSensitiveToken() throws Exception {
+        enqueueJson(detectResponse(101, 202));
+        enqueueJson("{\"code\":0,\"data\":5}");
+        enqueueJson("{\"code\":0,\"data\":{\"block\":false}}");
+        XMirrorScaAtomParam param = param("on", "pipeline-token", "off");
+        param.setBkSensitiveConfInfo(Collections.singletonMap("engineToken", "store-token"));
+
+        AtomResult result = execute(param);
+
+        assertEquals(Status.success, result.getStatus());
+        takeRequest();
+        takeRequest();
+        assertEquals("pipeline-token", takeRequest().getHeader("engine-token"));
+    }
+
+    @Test
+    public void blankStoreSensitiveEngineTokenStillFailsBeforeNetworkCall() throws Exception {
+        XMirrorScaAtomParam param = param("on", null, "off");
+        param.setBkSensitiveConfInfo(Collections.singletonMap("engineToken", " "));
+
+        AtomResult result = execute(param);
 
         assertEquals(Status.failure, result.getStatus());
         assertTrue(result.getMessage().contains("未配置引擎令牌"));

@@ -48,6 +48,9 @@ public class XMirrorScaAtom implements TaskAtom<XMirrorScaAtomParam> {
     private static final long POLL_INTERVAL_MS = 15_000L;
     private static final long LOG_ID_RETRY_DELAY_MS = 2_000L;
 
+    /** 研发商店插件敏感信息里引擎令牌的字段名，管理员配置时必须与此一致 */
+    private static final String SENSITIVE_ENGINE_TOKEN_KEY = "engineToken";
+
     @Override
     public void execute(AtomContext<XMirrorScaAtomParam> atomContext) {
         execute(atomContext.getParam(), atomContext.getResult());
@@ -69,9 +72,11 @@ public class XMirrorScaAtom implements TaskAtom<XMirrorScaAtomParam> {
         }
 
         boolean gateEnabled = "on".equalsIgnoreCase(param.getQualityEnable());
-        if (gateEnabled && isBlank(param.getEngineToken())) {
+        String engineToken = gateEnabled ? resolveEngineToken(param) : null;
+        if (gateEnabled && isBlank(engineToken)) {
             // 门禁开了却没给凭据，明确报错，绝不能静默放行
-            fail(result, "已开启质量门禁但未配置引擎令牌(engineToken)，请填写 SCA 配置项 sca.engine_api_token_value 的值");
+            fail(result, "已开启质量门禁但未配置引擎令牌(engineToken)：请在插件参数中填写，"
+                    + "或由管理员在研发商店的插件敏感信息中配置 engineToken（值为 SCA 配置项 sca.engine_api_token_value）");
             return;
         }
 
@@ -110,7 +115,7 @@ public class XMirrorScaAtom implements TaskAtom<XMirrorScaAtomParam> {
             }
 
             // 3. 门禁判定
-            GateResult gate = checkGate(server, param.getEngineToken(), detect.projectId, detect.taskId);
+            GateResult gate = checkGate(server, engineToken, detect.projectId, detect.taskId);
             if (gate == null) {
                 gateFailure(result, param, "调用门禁接口失败，taskId=" + detect.taskId);
                 return;
@@ -126,7 +131,7 @@ public class XMirrorScaAtom implements TaskAtom<XMirrorScaAtomParam> {
             Integer logId = gate.strategyLogId;
             if (logId == null) {
                 sleep(LOG_ID_RETRY_DELAY_MS);
-                GateResult again = checkGate(server, param.getEngineToken(), detect.projectId, detect.taskId);
+                GateResult again = checkGate(server, engineToken, detect.projectId, detect.taskId);
                 if (again != null) {
                     logId = again.strategyLogId;
                 }
@@ -305,6 +310,23 @@ public class XMirrorScaAtom implements TaskAtom<XMirrorScaAtomParam> {
             }
         }
         return null;
+    }
+
+    /**
+     * 引擎令牌是 SCA 部署级配置，全公司一个值：优先取流水线参数；留空则回落到研发商店的
+     * 插件敏感信息（蓝盾运行时注入 bkSensitiveConfInfo），管理员配置一次即可，使用者不必接触
+     */
+    private static String resolveEngineToken(XMirrorScaAtomParam param) {
+        if (!isBlank(param.getEngineToken())) {
+            return param.getEngineToken();
+        }
+        Map<String, String> sensitive = param.getBkSensitiveConfInfo();
+        String fromStore = sensitive == null ? null : sensitive.get(SENSITIVE_ENGINE_TOKEN_KEY);
+        if (isBlank(fromStore)) {
+            return null;
+        }
+        logger.info("引擎令牌取自研发商店的插件敏感信息配置");
+        return fromStore;
     }
 
     private static boolean isBlank(String s) {
