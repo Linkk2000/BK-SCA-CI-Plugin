@@ -60,8 +60,8 @@
       "type": "vuex-input",
       "default": "",
       "isSensitive": true,
-      "placeholder": "SCA 配置项 sca.engine_api_token_value 的值",
-      "desc": "门禁接口位于 /api-v1/engine/** 下，只认 engine-token 请求头。值在 SCA 部署目录 docker/gen.cfg 的 vars_must_xmsca_web_engine_token（或已渲染的 target/config/application-prod.properties）。建议使用凭据变量，不要明文。",
+      "placeholder": "留空则使用研发商店中配置的插件敏感信息",
+      "desc": "门禁接口位于 /api-v1/engine/** 下，只认 engine-token 请求头。值为 SCA 配置项 sca.engine_api_token_value。全公司只有一个值，建议由管理员在研发商店的「插件敏感信息」中配置名为 engineToken 的条目，此处留空即可自动使用；也可在此填写凭据变量。不要明文填写。",
       "rely": {
         "operation": "AND",
         "expression": [

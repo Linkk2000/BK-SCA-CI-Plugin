@@ -68,7 +68,8 @@ module.exports = (env, argv) => {
                 // so code can safely do `ISLOCAL === true` checks.
                 ISLOCAL: !isProd,
                 // 插件使用文档地址（内部 xwiki），编译时从环境变量注入，不进仓库；为空时前端不显示入口
-                WIKI_URL: JSON.stringify(process.env.WIKI_URL || '')
+                // 剥掉首尾引号：cmd 的 set VAR='x' 会把引号一起存进变量，带进 href 会被当成相对路径
+                WIKI_URL: JSON.stringify((process.env.WIKI_URL || '').trim().replace(/^['"]+|['"]+$/g, ''))
             }),
             new HtmlWebpackPlugin({
                 filename: 'index.html',
